@@ -159,72 +159,28 @@ namespace ASP.Net_Core.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CreateStudentViewModel vm)
         {
-            if (id != vm.Id)
+            var student = _context.Students.Find(vm.Id);
+            student.Name = vm.Name;
+            student.Enrolled = vm.Enrolled;
+            var studentById = await _context.Students.Include(x => x.Enrollment).FirstOrDefaultAsync(s => s.Id == id);
+            var existingIds = studentById.Enrollment.Select(x => x.CourseId).ToList();
+            var selectedIds = vm.Courses.Where(x => x.Selected).Select(x => int.Parse(x.Value)).ToList();
+            var toAdd = selectedIds.Except(existingIds).ToList();
+            var toRemove = existingIds.Except(selectedIds).ToList();
+                student.Enrollment = student.Enrollment.Where(x => !toRemove.Contains(x.CourseId)).ToList();
+
+            foreach (var item in toAdd)
             {
-                return NotFound();
+                student.Enrollment.Add(new StudentCourse
+                {
+                    CourseId = item
+                });
             }
+            _context.Students.Update(student);
+            _context.SaveChanges();
 
-            if (ModelState.IsValid)
-            {
-                var student = await _context.Students.FindAsync(id);
-                if (student == null)
-                    return NotFound();
-
-                student.Name = vm.Name;
-                student.Enrolled = vm.Enrolled;
-
-                // update enrollments: remove existing and add selected
-                var existing = _context.StudentCourses.Where(sc => sc.StudentId == id).ToList();
-                if (existing.Any())
-                {
-                    _context.StudentCourses.RemoveRange(existing);
-                }
-
-                if (vm.Courses != null)
-                {
-                    foreach (var c in vm.Courses.Where(x => x.Selected))
-                    {
-                        if (int.TryParse(c.Value, out int courseId))
-                        {
-                            _context.StudentCourses.Add(new Models.StudentCourse
-                            {
-                                StudentId = id,
-                                CourseId = courseId
-                            });
-                        }
-                    }
-                }
-
-                try
-                {
-                    _context.Update(student);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StudentExists(student.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            // repopulate courses for the view
-            var courseEntities = _context.Courses.ToList();
-            vm.Courses = courseEntities.Select(x => new SelectListItem
-            {
-                Text = x.Title,
-                Value = x.Id.ToString(),
-                Selected = vm.Courses != null && vm.Courses.Any(cc => cc.Value == x.Id.ToString() && cc.Selected)
-            }).ToList();
-
-            return View(vm);
+            return RedirectToAction(nameof(Index));
+           
         }
 
         // GET: Student/Delete/5
