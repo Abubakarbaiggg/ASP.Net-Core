@@ -118,6 +118,12 @@ namespace ASP.Net_Core.Areas.Identity.Pages.Account
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
+                if (result.IsNotAllowed)
+                {
+                    // Commonly means email not confirmed or user not allowed to sign in
+                    ModelState.AddModelError(string.Empty, "Account not allowed to sign in. Please confirm your email or contact the administrator.");
+                    return Page();
+                }
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });

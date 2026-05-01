@@ -12,9 +12,9 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
 })
-.AddEntityFrameworkStores<DataContext>();
+.AddRoles<IdentityRole>().AddEntityFrameworkStores<DataContext>();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

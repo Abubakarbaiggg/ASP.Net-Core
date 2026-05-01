@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.Net_Core.Controllers
 {
-    [Authorize(Roles = "Student")]
+    [Authorize(Roles = "Student,Admin,Administrator")]
     public class StudentController : Controller
     {
         private readonly DataContext _context;
@@ -23,6 +23,7 @@ namespace ASP.Net_Core.Controllers
         }
 
         // GET: Student
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Students.ToListAsync());
