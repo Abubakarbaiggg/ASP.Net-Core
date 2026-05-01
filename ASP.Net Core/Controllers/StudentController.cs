@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using ASP.Net_Core.Data;
 using ASP.Net_Core.Models;
 using ASP.Net_Core.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASP.Net_Core.Controllers
 {
+    [Authorize(Roles = "Student")]
     public class StudentController : Controller
     {
         private readonly DataContext _context;
