@@ -16,10 +16,12 @@ namespace ASP.Net_Core.Controllers
     public class StudentController : Controller
     {
         private readonly DataContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public StudentController(DataContext context)
+        public StudentController(DataContext context,IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Student
@@ -69,10 +71,12 @@ namespace ASP.Net_Core.Controllers
         {
             if (ModelState.IsValid)
             {
+                string stringFileName = UploadFile(vm);
                 var student = new Student
                 {
                     Name = vm.Name,
-                    Enrolled = vm.Enrolled
+                    Enrolled = vm.Enrolled,
+                    ProfileImage = stringFileName
                 };
 
                 _context.Add(student);
@@ -119,6 +123,21 @@ namespace ASP.Net_Core.Controllers
             return View(vm);
         }
 
+        private string UploadFile(CreateStudentViewModel vm)
+        {
+            string fileName = null;
+            if(vm.ProfileImage != null)
+            {
+                string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "Images");
+                fileName = Guid.NewGuid().ToString() + "_" + vm.ProfileImage.FileName;
+                string filePath = Path.Combine(uploadDir, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    vm.ProfileImage.CopyTo(fileStream);
+                }
+            }
+            return fileName;
+        }
         // GET: Student/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

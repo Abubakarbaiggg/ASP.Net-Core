@@ -16,5 +16,6 @@ namespace ASP.Net_Core.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<StudentCourse> StudentCourses { get; set; }
         public DbSet<ASP.Net_Core.ViewModels.RoleStore> RoleStore { get; set; } = default!;
+        public DbSet<ASP.Net_Core.ViewModels.AppUserViewModel> AppUserViewModel { get; set; } = default!;
     }
 }
