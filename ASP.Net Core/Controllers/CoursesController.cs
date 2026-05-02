@@ -18,10 +18,19 @@ namespace ASP.Net_Core.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string sortOrder)
         {
+            ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
             var courses = _context.Courses.ToList();
-            return View(courses);
+            switch (sortOrder) {
+                case "title_desc":
+                    courses = courses.OrderByDescending(s => s.Title).ToList();
+                    break;
+                default:
+                    courses = courses.OrderBy(s => s.Title).ToList();
+                    break;
+            }
+            return View(courses.ToList());
         }
         [HttpGet]
         public IActionResult Create() { 
