@@ -36,14 +36,14 @@ namespace ASP.Net_Core.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return View("notFound", id);
             }
 
             var student = await _context.Students.Include(x => x.Enrollment).ThenInclude(c => c.Course)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (student == null)
             {
-                return NotFound();
+                return View("notFound", id);
             }
 
             return View(student);
