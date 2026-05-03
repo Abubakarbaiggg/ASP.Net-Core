@@ -27,5 +27,6 @@ namespace ASP.Net_Core.Data
                 new Course { Id = 6, Title = "Islamic Studies", Code = "ISL" }
             );
         }
+        public DbSet<ASP.Net_Core.Models.Employee> Employee { get; set; } = default!;
     }
 }
